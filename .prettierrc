@@ -1,0 +1,6 @@
+{
+  "parser": "typescript",
+  "prettier.printWidth": 80,
+  "prettier.semi": true,
+  "prettier.tabWidth": 2
+}

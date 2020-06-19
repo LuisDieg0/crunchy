@@ -13,7 +13,7 @@
 #import <UMCore/UMModuleRegistry.h>
 #import <UMReactNativeAdapter/UMNativeModulesProxy.h>
 #import <UMReactNativeAdapter/UMModuleRegistryAdapter.h>
-
+#import <AVFoundation/AVFoundation.h>
 @interface AppDelegate ()
 
 @property (nonatomic, strong) NSDictionary *launchOptions;
@@ -39,7 +39,7 @@
 #endif
 
   [super application:application didFinishLaunchingWithOptions:launchOptions];
-
+  [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error: nil];
   return YES;
 }
 

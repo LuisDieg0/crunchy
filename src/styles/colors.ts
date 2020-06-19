@@ -1,0 +1,31 @@
+const blueVersion = {
+  primary: "#034F60",
+  primaryLight: "#829BF8",
+  primaryGradientStart: "#4f44b6",
+  primaryGradientEnd: "#4f44b6",
+  secondaryGradientStart: "#FF1358",
+  secondaryGradientEnd: "#FF1358",
+  profileGradientStart: "#54CBF6",
+  profileGradientEnd: "#49D2D0",
+  secondary: "#FF1358",
+  grey: "#acacac",
+  gray: "#5f5f5f",
+  darkGray: "#4d4d4d",
+  lightGray: "#9b9b9b",
+  white: "#ffffff",
+  blueDisable: "#b0c0d1",
+  blue: "#005ABA",
+  bluish: "#F1F1F7",
+  black: "#000000",
+  green: "#05C45D",
+  greenButton: "#05C45D",
+  yellow: "#ffc247",
+  radioGroupTextSelect: "#2D8BE0",
+  radioGroupItemSelect: "#DBF1FF",
+  radioGroupBordeItemSelect: "#2D8BE0",
+  radioGroupBackground: "#F5F5F5",
+  red: "#C40505",
+  linearGradient: ["#034F60", "#034F60", "#4C939E", "#69D5D8"]
+};
+
+export default blueVersion;
