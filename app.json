@@ -1,0 +1,17 @@
+{
+  "name": "isoswareTv",
+  "displayName": "isoswareTv",
+  "expo": {
+    "name": "isoswareTv",
+    "slug": "isoswareTv",
+    "version": "1.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
