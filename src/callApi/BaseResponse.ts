@@ -30,8 +30,9 @@ export function* baseResponseList({
 	getStorage
 }: PropsList) {
 	try {
-		const token = yield select((state) => state.auth.access_token);
+		const token = yield select((state) => state.auth.login.access_token);
 		const response = yield call(callApi, Object.assign(values, { token }));
+		console.log("response", response)
 		switch (response.status) {
 			case status.success:
 				yield put(
@@ -39,7 +40,7 @@ export function* baseResponseList({
 						Object.assign({
 							isLoading: false,
 							action: SUCCESS,
-							list: mapperList(response.body),
+							data: mapperList(response.body),
 							message: response.message,
 							...paramsResponse
 						})
@@ -221,7 +222,7 @@ export function* baseResponseDelete({
 	paramsResponse = {}
 }: PropsDelete) {
 	try {
-		const token = yield select((state) => state.auth.access_token);
+		const token = yield select((state) => state.auth.login.access_token);
 		const response = yield call(callApi, Object.assign(values, { token }));
 		switch (response.status) {
 			case status.accepted:
@@ -314,7 +315,7 @@ export function* baseResponseCreate({
 	mapperData
 }: PropsCreate) {
 	try {
-		const token = yield select((state) => state.auth.access_token);
+		const token = yield select((state) => state.auth.login.access_token);
 		const response = yield call(callApi, Object.assign(values, { token }));
 		switch (response.status) {
 			case status.createSuccess:
@@ -455,7 +456,7 @@ export function* baseResponseDetailUser({
 			console.log('Response ', name, response);
 		}
 	} catch (error) {
-		// const token = yield select(state => state.auth.access_token);
+		// const token = yield select(state => state.auth.login.access_token);
 		// const data = yield select(state => state.detailUser.data);
 		if (__DEV__) {
 			console.log('catch error ', name, error.message);

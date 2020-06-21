@@ -1,10 +1,9 @@
 import { combineReducers } from "redux";
 
 // ## Generator Reducer Imports
-import { loading, dialog, changeVideo } from "../modules/app/App.state";
+import { list } from "../modules/home/Home.state";
 
 export default combineReducers({
-  loading,
-  dialog,
-  changeVideo
+  // ## Generator Reducers
+  list
 });

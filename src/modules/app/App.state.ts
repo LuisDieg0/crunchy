@@ -12,6 +12,7 @@ const initialStateDialog = {
 export const LOADING = "@ACTION.LOADING";
 export const DIALOG = "@ACTION.DIALOG";
 export const NAVIGATION = "@ACTION.NAVIGATION";
+export const CHANGE_VIDEO = "@ACTION.CHANGE_VIDEO";
 
 // Action creators
 export const actionChangeLoading = (status: boolean) => ({
@@ -29,6 +30,11 @@ export const actionDialog = (visible: boolean, config?: ConfigDialog) => ({
 
 export const changeNavigation = (object: any) => ({
   type: NAVIGATION,
+  object
+});
+
+export const actionchangeVideo = (object: any) => ({
+  type: CHANGE_VIDEO,
   object
 });
 
@@ -56,6 +62,16 @@ export const dialog = (state = initialStateDialog, action: any) => {
 export const navigation = (state = { index: 0 }, action: any) => {
   switch (action.type) {
     case NAVIGATION:
+      return action.object;
+    default:
+      return state;
+  }
+};
+
+export const changeVideo = (state = initialStateDialog, action: any) => {
+  switch (action.type) {
+    case CHANGE_VIDEO:
+      console.log("action", action);
       return action.object;
     default:
       return state;

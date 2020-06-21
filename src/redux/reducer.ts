@@ -4,11 +4,13 @@ import storage from "@react-native-community/async-storage";
 // ## Generator Reducer Imports
 import app from "./app.reducer";
 import auth from "./auth.reducer";
+import playlist from "./playlist.reducer";
 
 const appReducer = combineReducers({
   // ## Generator Reducers
   app,
-  auth
+  auth,
+  playlist
 });
 
 export const CLEAR_SESSION = "CLEAR_SESSION";
