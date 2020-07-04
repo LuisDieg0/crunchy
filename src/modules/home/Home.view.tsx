@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import { View, Text } from "react-native";
+import { View, Text, FlatList } from "react-native";
+import RowVideo from "./componets/RowVideo";
 
 export default class HomeView extends Component {
   state = {};
@@ -8,7 +9,15 @@ export default class HomeView extends Component {
     const { data = [] } = this.props;
     return (
       <View>
-        <Text>Inicio</Text>
+        <FlatList
+          data={data}
+          ItemSeparatorComponent={() => {
+            return <View style={{ height: 10, width: "100%" }} />;
+          }}
+          renderItem={({ item, index }) => {
+            return <RowVideo item={item}></RowVideo>;
+          }}
+        />
       </View>
     );
   }
