@@ -15,63 +15,18 @@ export default function AppNavigation(props: any) {
   const [listenerSearch] = React.useState({} as any);
 
   return (
-    <AppContext.Provider
-      value={{
-        changeVideo: () => {
-          return video => {
-            Object.keys(listenerChangeVideo).forEach(key => {
-              if (typeof listenerChangeVideo[key] === "function") {
-                listenerChangeVideo[key](video);
-              }
-            });
-          };
-        },
-        listenerChangeVideo: {
-          addEventListener: event => {
-            listenerChangeVideo[
-              `_${Object.keys(listenerChangeVideo).length}`
-            ] = event;
-          }
-        },
-        onSearch: () => {
-          return video => {
-            Object.keys(listenerSearch).forEach(key => {
-              if (typeof listenerSearch[key] === "function") {
-                listenerSearch[key](video);
-              }
-            });
-          };
-        },
-        listenerSearch: {
-          addEventListener: event => {
-            listenerSearch[`_${Object.keys(listenerSearch).length}`] = event;
-          }
-        }
-      }}
-    >
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen
-            component={Home}
-            name={routes.home}
-            options={{ header: () => null }}
-          ></Stack.Screen>
-        </Stack.Navigator>
-        <Youtube></Youtube>
-      </NavigationContainer>
-    </AppContext.Provider>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen
+          component={Home}
+          name={routes.home}
+          options={{ header: () => null }}
+        ></Stack.Screen>
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
 export const routes = {
   home: "$routes.home"
 };
-
-export type sale =
-  | "$routes.sales"
-  | "$routes.saleDetail"
-  | "$routes.createSale"
-  | "$routes.bussines"
-  | "$routes.searchBussines"
-  | "$routes.shoppinCar"
-  | "$routes.bussinessDetails";

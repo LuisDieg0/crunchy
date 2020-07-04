@@ -8,10 +8,11 @@ export default class navigator extends Component {
   render() {
     const { auth: { login: { access_token } } = {} } = this.props;
 
-    console.log("access_token", access_token);
-    if (access_token !== null && access_token !== undefined) {
-      return <AppNavigation {...this.props}></AppNavigation>;
-    }
-    return <AuthNavigation {...this.props}></AuthNavigation>;
+     return <AppNavigation {...this.props}></AppNavigation>;
+    // console.log("access_token", access_token);
+    // if (access_token !== null && access_token !== undefined) {
+    //   return <AppNavigation {...this.props}></AppNavigation>;
+    // }
+    // return <AuthNavigation {...this.props}></AuthNavigation>;
   }
 }

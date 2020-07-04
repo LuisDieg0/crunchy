@@ -1,29 +1,22 @@
 import { connect } from "react-redux";
 import { compose, lifecycle } from "recompose";
 import View from "./Home.view";
-import { StateReducer } from "@gotumi-redux";
-import { actionClearSesion } from "../auth/Auth.state";
-import { actionchangeVideo } from "../app/App.state";
-import { actionListPlaylist } from "./Home.state";
+
 export default compose(
   connect(
-    (state: StateReducer) => {
+    state => {
       return {
-        data: state.playlist.list.data
+        data: [
+          {
+            name: "111"
+          },
+          {
+            name: "222"
+          }
+        ]
       };
     },
-    (dispatch: any) => ({
-      closeSesion: () => {
-        dispatch(actionClearSesion());
-      },
-      getPlaylist: (object: any) => {
-        dispatch(actionListPlaylist(object));
-      },
-      changeVideo: (object: any) => {
-        console.log("changeVideo", object);
-        dispatch(actionchangeVideo(object));
-      }
-    })
+    (dispatch: any) => ({})
   ),
   lifecycle({
     componentDidMount() {}
