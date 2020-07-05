@@ -10,7 +10,7 @@ export default class HomeView extends Component {
   state = {};
 
   render() {
-    const { data = [] } = this.props;
+    const { data = [], navigation } = this.props;
     return (
       <View style={styles.container}>
         <FlatGrid
@@ -19,7 +19,7 @@ export default class HomeView extends Component {
           itemDimension={250}
           data={data}
           renderItem={({ item, index }) => {
-            return <RowVideo item={item}></RowVideo>;
+            return <RowVideo item={item} navigation={navigation}></RowVideo>;
           }}
         ></FlatGrid>
       </View>

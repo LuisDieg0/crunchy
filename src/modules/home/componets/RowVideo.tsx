@@ -4,13 +4,18 @@ import FastImage from "react-native-fast-image";
 import { RectButton, BorderlessButton } from "react-native-gesture-handler";
 type Props = {
   item: any;
+  navigation: any;
 };
 export default class RowVideo extends Component<Props> {
   render() {
-    const { item: { title, subTitle } = {} } = this.props;
+    const { item: { title, subTitle } = {}, navigation } = this.props;
     return (
       <View style={styles.row}>
-        <RectButton>
+        <RectButton
+          onPress={() => {
+            navigation.navigate("$routes.videos");
+          }}
+        >
           <FastImage
             source={{
               uri:
