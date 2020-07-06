@@ -7,18 +7,14 @@ import {
   SUCCESS,
   actionResponseLogin,
   actionResponseRegister,
-  actionResponseDetailUser,
-  actionResponseUpdateUser,
   UPDATE_USER
 } from "../modules/auth/Auth.state";
 import { actionChangeLoading } from "../modules/app/App.state";
-import {
-  baseResponseDetailUser,
-  baseResponseRegister,
-  baseResponseUpdate
-} from "./BaseResponse";
+import { baseResponseRegister } from "./BaseResponse";
 // import { userEntity } from "../mapper/UserDataMapper";
 import callApi from "./BaseCallApi";
+import auth from "@react-native-firebase/auth";
+import { Alert } from "react-native";
 
 type Props = {
   object?: any;
@@ -35,44 +31,16 @@ const apiRegister = ({ object }: Props) => {
 };
 
 const apiLogin = ({ object }: Props) => {
-  const url = `oauth/token`;
-  const data = {
-    client_id: "2",
-    client_secret: "tzwUplCo9MD8Ot79ricuXKD3YThDLNWw1GjEazx6",
-    grant_type: "password",
-    username: object.email,
-    password: object.password
-  };
-  return callApi({
-    url,
-    method: "POST",
-    body: data,
-    apiName: "Login"
-  });
-};
-
-const apiDetailUser = ({ token }: Props) => {
-  const url = `api/user`;
-  return callApi({ url, method: "GET", token, apiName: "DetailUser" });
-};
-
-const apiUpdateUser = ({ token, object }: Props) => {
-  const url = `api/user`;
-  return callApi({
-    url,
-    method: "PATCH",
-    token,
-    apiName: "UpdateUser",
-    body: object
-  });
+  return auth().signInWithEmailAndPassword(object.email, object.password);
 };
 
 function* sagaLogin(values: Props) {
   try {
     yield put(actionChangeLoading(true));
     const login = yield call(apiLogin, values);
-    if (login.access_token != null) {
-      const dataLogin = Object.assign({}, login, {
+    console.log("login", login);
+    if (login.user) {
+      const dataLogin = Object.assign({}, login.user._user, {
         action: SUCCESS,
         message: "usuario logeado correctamente"
       });
@@ -81,13 +49,12 @@ function* sagaLogin(values: Props) {
     } else {
       const dataLogin = Object.assign({
         action: ERROR,
-        message: login.message
+        message: "Ocurrio un error"
       });
-      console.log("Api", dataLogin);
       yield put(actionResponseLogin(dataLogin));
       yield put(actionChangeLoading(false));
+      yield showAlert("Ocurrio un error");
     }
-    console.log("yarn", login);
   } catch (error) {
     console.log("catch error", error);
     yield put(
@@ -98,6 +65,7 @@ function* sagaLogin(values: Props) {
       })
     );
     yield put(actionChangeLoading(false));
+    yield showAlert("Ocurrio un error");
   }
 }
 
@@ -112,24 +80,11 @@ function* sagaRegister(values: Props) {
 }
 
 function* sagaDetailUser(values: Props) {
-  yield baseResponseDetailUser({
-    name: "DetailUser",
-    values,
-    callApi: apiDetailUser,
-    actionResponse: actionResponseDetailUser,
-    mapperData: item => item,
-    actionStatus: { SUCCESS, ERROR }
-  });
+  yield;
 }
 
 function* sagaUpdateUser(values: Props) {
-  yield baseResponseUpdate({
-    name: "UpdateUser",
-    values,
-    callApi: apiUpdateUser,
-    actionResponse: actionResponseUpdateUser,
-    actionStatus: { SUCCESS, ERROR }
-  });
+  yield;
 }
 
 export default function* funcionPrimaria() {
@@ -141,3 +96,17 @@ export default function* funcionPrimaria() {
   // yield ES6
   console.log("función generadora Auth");
 }
+
+const showAlert = (message: string) => {
+  Alert.alert(
+    "",
+    message,
+    [
+      {
+        text: "Aceptar",
+        onPress: () => {}
+      }
+    ],
+    { cancelable: true }
+  );
+};

@@ -1,7 +1,15 @@
 import React, { Component } from "react";
-import { View, Text, FlatList, StyleSheet, Dimensions } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity
+} from "react-native";
 import RowVideo from "./componets/RowVideo";
 import { FlatGrid } from "react-native-super-grid";
+import auth from "@react-native-firebase/auth";
 
 export default class HomeView extends Component {
   constructor(props) {
@@ -13,6 +21,13 @@ export default class HomeView extends Component {
     const { data = [], navigation } = this.props;
     return (
       <View style={styles.container}>
+        <TouchableOpacity
+          onPress={() => {
+            auth().signOut();
+          }}
+        >
+          <Text>SignOutOut</Text>
+        </TouchableOpacity>
         <FlatGrid
           initialNumToRender={10}
           centerContent

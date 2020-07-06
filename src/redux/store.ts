@@ -10,7 +10,7 @@ import Playlist from "../callApi/Playlist.api";
 import { persistStore } from "redux-persist";
 import storage from "@react-native-community/async-storage";
 
-export default function createReduxStore({ queueReleaseThrottle = 1000 } = {}) {
+export default function createReduxStore() {
   const sagaMiddleware = createSagaMiddleware();
 
   const middlewares = [];

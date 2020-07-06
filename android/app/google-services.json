@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "390582240872",
+    "firebase_url": "https://crunchy-4ada4.firebaseio.com",
+    "project_id": "crunchy-4ada4",
+    "storage_bucket": "crunchy-4ada4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:390582240872:android:7d716895eca4553c9ddddd",
+        "android_client_info": {
+          "package_name": "com.crunchy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "390582240872-krsva234cj22u804v4a9b8qekloko03u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDK-dnasOF6dm4bf3RqRPiaAblBYCODxC8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "390582240872-krsva234cj22u804v4a9b8qekloko03u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

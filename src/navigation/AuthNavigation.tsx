@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Modal, TouchableOpacity, Text } from "react-native";
+import { View, Modal, TouchableOpacity, Text, Alert } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import {
   createStackNavigator,
@@ -8,10 +8,37 @@ import {
 
 import Login from "../modules/auth/login/Login.ctn";
 import Register from "../modules/auth/register/Register.ctn";
+import Loading from "../components/loading/Loading";
 
 import { ScrollView, RectButton } from "react-native-gesture-handler";
 
 const Stack = createStackNavigator();
+
+const renderDialog = (
+  dialog: { visible: boolean; config: ConfigDialog },
+  resetDialog: any
+) => {
+  if (dialog !== undefined && dialog.visible) {
+    if (dialog.config !== undefined && !dialog.config.custom) {
+      const { title = "", message, buttons, options } = dialog.config;
+      Alert.alert(title, message, buttons, options);
+      resetDialog();
+    }
+    if (dialog.config !== undefined && dialog.config.custom) {
+      const { renderCustom } = dialog.config;
+      if (
+        renderCustom !== undefined &&
+        typeof renderCustom.element === "function"
+      ) {
+        return (
+          <Modal visible animated transparent animationType="fade">
+            {renderCustom.element()}
+          </Modal>
+        );
+      }
+    }
+  }
+};
 
 export default class AuthNavigation extends Component {
   render() {
@@ -30,8 +57,8 @@ export default class AuthNavigation extends Component {
             options={{ title: "Registro" }}
           />
         </Stack.Navigator>
-
-        {/* <Loading showLoading={app.loading.isLoading}></Loading> */}
+        {renderDialog(app.dialog, resetDialog)}
+        <Loading showLoading={app.loading.isLoading}></Loading>
       </NavigationContainer>
     );
   }

@@ -67,22 +67,6 @@ export default class LoginView extends Component<LoginProps, LoginState> {
     }
   };
 
-  ButtonLogin = () => {
-    return (
-      <TouchableOpacity
-        onPress={() => {
-          this.props.callApiLogin({
-            email: "admin@tienda1.pe",
-            password: "12345678"
-          });
-        }}
-        style={[styles.buttonLoggin]}
-      >
-        <Text style={{ color: "white" }}>INGRESAR</Text>
-      </TouchableOpacity>
-    );
-  };
-
   render() {
     return (
       <View style={styles.container}>
@@ -109,7 +93,7 @@ export default class LoginView extends Component<LoginProps, LoginState> {
             }}
           ></View>
           <Provider store={Store}>
-            <View
+            {/* <View
               style={{
                 alignItems: "center",
                 justifyContent: "center",
@@ -121,7 +105,7 @@ export default class LoginView extends Component<LoginProps, LoginState> {
                 style={{ height: 80, width: 200, resizeMode: "contain" }}
                 source={require("../../../../assets/ic_logo.png")}
               />
-            </View>
+            </View> */}
             <View
               style={{
                 padding: 10,

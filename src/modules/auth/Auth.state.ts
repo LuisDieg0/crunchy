@@ -77,11 +77,7 @@ export function login(state = initialState, action: PropsReducer) {
     case RESPONSE_LOGIN:
       return action.object;
     case CLEAR_ACTION:
-      return Object.assign({
-        action: "",
-        isLoading: state.isLoading,
-        access_token: state.access_token
-      });
+      return { ...state, action: "" };
     case CLEAR_SESSION:
       return Object.assign({
         action: "",
