@@ -1,15 +1,15 @@
 import { connect } from "react-redux";
 import { compose, lifecycle } from "recompose";
-import View from "./Home.view";
+import View from "./Anime.view";
 export default compose(
   connect(
     (state) => {
       return {
         data: new Array(10).fill({}).map((item, index) => ({
-          title: `Tower of god ${index + 10}`,
-          subTitle: `Chapter ${index + 1}`,
+          title: `Anime ${index + 1}`,
+          subTitle: `chapters  ${index + 360}`,
           image:
-            "https://d1phco5nl3d92c.cloudfront.net/2016/03/07021505/lolis-portada.jpg",
+            "https://pxb.cdn.latpress.com/latpress/042020/1586870847052.jpg",
         })),
       };
     },

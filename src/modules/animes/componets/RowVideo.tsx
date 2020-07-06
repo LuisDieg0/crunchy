@@ -13,7 +13,7 @@ export default class RowVideo extends Component<Props> {
       <View style={styles.row}>
         <RectButton
           onPress={() => {
-            // navigation.navigate("$routes.videos");
+            navigation.navigate("$routes.chapter");
           }}
         >
           <FastImage
@@ -27,7 +27,7 @@ export default class RowVideo extends Component<Props> {
         <View style={{ flexDirection: "row" }}>
           <View style={{ flex: 1 }}>
             <Text style={styles.textTitle}>{title}</Text>
-            <Text style={styles.textSubTitle}>{subTitle}</Text>
+            <Text style={styles.textChap}>{subTitle}</Text>
           </View>
           <BorderlessButton
             style={{ alignItems: "center", justifyContent: "center" }}
@@ -51,7 +51,7 @@ export default class RowVideo extends Component<Props> {
 const styles = StyleSheet.create({
   row: {
     backgroundColor: "white",
-    height: 300,
+    height: 250,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -63,14 +63,14 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   image: {
-    height: 250,
+    height: 150,
     width: "100%",
   },
   textTitle: {
     fontSize: 18,
     fontWeight: "bold",
   },
-  textSubTitle: {
+  textChap: {
     fontSize: 15,
   },
 });
