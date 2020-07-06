@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-
 import { NavigationContainer } from "@react-navigation/native";
 import Home from "../modules/home/Home.ctn";
+import Animes from "../modules/animes/Anime.ctn";
+import Chapter from "../modules/animes/animeChapter/AnimeChapter.ctn";
 import AppContext from "./AppContext";
 import { View } from "react-native";
 const Tab = createBottomTabNavigator();
@@ -22,9 +23,14 @@ export default function AppNavigation(props: any) {
           options={{ header: () => null, title: "Inicio" }}
         ></Stack.Screen>
         <Stack.Screen
-          component={Empty}
-          name={routesStack.videos}
-          options={{ title: "Inicio" }}
+          component={Animes}
+          name={routesStack.animes}
+          options={{ title: "inicio" }}
+        ></Stack.Screen>
+        <Stack.Screen
+          component={Chapter}
+          name={routesStack.chapter}
+          options={{ title: "capitulos" }}
         ></Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
@@ -40,22 +46,22 @@ const TabNavigation = () => {
       <Tab.Screen
         component={Home}
         name={routesTab.home}
-        options={{ header: () => null, title: "Inicio" }}
+        options={{ title: "Inicio" }}
       ></Tab.Screen>
       <Tab.Screen
         component={Empty}
         name={routesTab.new}
-        options={{ header: () => null, title: "Nuevo" }}
+        options={{ title: "Nuevo" }}
       ></Tab.Screen>
       <Tab.Screen
-        component={Empty}
+        component={Animes}
         name={routesTab.anime}
-        options={{ header: () => null, title: "Animes" }}
+        options={{ title: "Animes" }}
       ></Tab.Screen>
       <Tab.Screen
         component={Empty}
         name={routesTab.other}
-        options={{ header: () => null, title: "Otros" }}
+        options={{ title: "Otros" }}
       ></Tab.Screen>
     </Tab.Navigator>
   );
@@ -65,10 +71,11 @@ export const routesTab = {
   home: "$routes.home",
   new: "$routes.new",
   anime: "$routes.anime",
-  other: "$routes.other"
+  other: "$routes.other",
 };
 
 export const routesStack = {
   init: "$routes.init",
-  videos: "$routes.videos"
+  animes: "$routes.animes",
+  chapter: "$routes.chapter",
 };
