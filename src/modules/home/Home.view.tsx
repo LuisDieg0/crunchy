@@ -26,7 +26,7 @@ export default class HomeView extends Component {
             auth().signOut();
           }}
         >
-          <Text>SignOutOut</Text>
+          <Text>SignOut</Text>
         </TouchableOpacity>
         <FlatGrid
           initialNumToRender={10}
