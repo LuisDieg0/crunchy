@@ -5971,6 +5971,11 @@ react-lifecycles-compat@^3.0.2:
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
 
+react-native-android-immersive-mode@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/react-native-android-immersive-mode/-/react-native-android-immersive-mode-1.3.0.tgz#09ea88b6407724deec3e6532f76aee704b930741"
+  integrity sha512-ADKzigTK+xfr31LIw5iIro/4Yp/h+9gawndO1RUcXGqp94OhctP3XzRjVvGUTbZl7DDxBpfTgRrJPt1ZXZ3fGQ==
+
 react-native-drawer@2.5.1:
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/react-native-drawer/-/react-native-drawer-2.5.1.tgz#08b9314184f48c724f1b467f8859797369798654"

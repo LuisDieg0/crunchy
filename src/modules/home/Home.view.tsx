@@ -10,6 +10,7 @@ import {
 import RowVideo from "./componets/RowVideo";
 import { FlatGrid } from "react-native-super-grid";
 import auth from "@react-native-firebase/auth";
+import AppContext from "../../navigation/AppContext";
 
 export default class HomeView extends Component {
   constructor(props) {
@@ -20,24 +21,36 @@ export default class HomeView extends Component {
   render() {
     const { data = [], navigation } = this.props;
     return (
-      <View style={styles.container}>
-        <TouchableOpacity
-          onPress={() => {
-            auth().signOut();
-          }}
-        >
-          <Text>SignOut</Text>
-        </TouchableOpacity>
-        <FlatGrid
-          initialNumToRender={10}
-          centerContent
-          itemDimension={250}
-          data={data}
-          renderItem={({ item, index }) => {
-            return <RowVideo item={item} navigation={navigation}></RowVideo>;
-          }}
-        ></FlatGrid>
-      </View>
+      <AppContext.Consumer>
+        {({ changeVideo }) => {
+          return (
+            <View style={styles.container}>
+              <TouchableOpacity
+                onPress={() => {
+                  auth().signOut();
+                }}
+              >
+                <Text>SignOut</Text>
+              </TouchableOpacity>
+              <FlatGrid
+                initialNumToRender={10}
+                centerContent
+                itemDimension={250}
+                data={data}
+                renderItem={({ item, index }) => {
+                  return (
+                    <RowVideo
+                      item={item}
+                      navigation={navigation}
+                      changeVideo={changeVideo}
+                    ></RowVideo>
+                  );
+                }}
+              ></FlatGrid>
+            </View>
+          );
+        }}
+      </AppContext.Consumer>
     );
   }
 }

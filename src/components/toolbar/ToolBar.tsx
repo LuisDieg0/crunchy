@@ -41,16 +41,7 @@ export default function ToolBar(params: any) {
             backgroundColor: params.backgroundToolbar
           }}
         >
-          <View
-            style={{
-              height: 55,
-              width: 53,
-              alignItems: "center",
-              justifyContent: "center"
-            }}
-          >
-            {params.content && params.content()}
-          </View>
+          {params.children}
         </View>
       )}
     </View>
@@ -71,8 +62,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#ccc"
   }
 });
-
-
 
 // import React, { Component } from "react";
 // import {
@@ -95,6 +84,7 @@ const styles = StyleSheet.create({
 // // import { Video } from "expo";
 // import { FontAwesome as Icon } from "@expo/vector-icons";
 // import ToolBar, { statusBarHeight } from "./src/components/toolbar/ToolBar";
+import Children from "react";
 // const Lights = {
 //   uri:
 //     "https://player.vimeo.com/external/207277102.hd.mp4?s=6939b93ae3554679b57f5e7fa831eef712a74b3c&profile_id=119&oauth2_token_id=57447761"

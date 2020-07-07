@@ -5,20 +5,26 @@ import { RectButton, BorderlessButton } from "react-native-gesture-handler";
 type Props = {
   item: any;
   navigation: any;
+  changeVideo: any;
 };
 export default class RowVideo extends Component<Props> {
   render() {
-    const { item: { title, subTitle, image } = {}, navigation } = this.props;
+    const {
+      item: { title, subTitle, image } = {},
+      navigation,
+      changeVideo
+    } = this.props;
     return (
       <View style={styles.row}>
         <RectButton
           onPress={() => {
+            changeVideo()({});
             // navigation.navigate("$routes.videos");
           }}
         >
           <FastImage
             source={{
-              uri: image,
+              uri: image
             }}
             resizeMode={"contain"}
             style={styles.image}
@@ -38,7 +44,7 @@ export default class RowVideo extends Component<Props> {
                 height: 40,
                 width: 40,
                 tintColor: "black",
-                resizeMode: "contain",
+                resizeMode: "contain"
               }}
             ></Image>
           </BorderlessButton>
@@ -55,22 +61,22 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 2
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
 
-    elevation: 5,
+    elevation: 5
   },
   image: {
     height: 250,
-    width: "100%",
+    width: "100%"
   },
   textTitle: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "bold"
   },
   textSubTitle: {
-    fontSize: 15,
-  },
+    fontSize: 15
+  }
 });

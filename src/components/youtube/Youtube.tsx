@@ -11,34 +11,20 @@ import {
   PanResponder,
   StatusBar,
   BackHandler,
-  Image
+  Image,
+  Alert
 } from "react-native";
-import YoutubePlayer from "../../components/youtube/src/mobile/index";
-import AppContext from "../../navigation/AppContext";
-import { RectButton } from "react-native-gesture-handler";
-const WINDOW_HEIGHT = Dimensions.get("window").height;
-const WINDOW_WIDTH = Dimensions.get("window").width;
+import {
+  immersiveModeOn,
+  immersiveModeOff
+} from "react-native-android-immersive-mode";
 
-const PlaylistVideo = ({ name, channel, views, image }) => {
-  return (
-    <View style={styles.playlistVideo}>
-      {/* <Image
-        source={image}
-        style={styles.playlistThumbnail}
-        resizeMode="cover"
-      /> */}
-      <View style={styles.playlistText}>
-        <Text style={styles.playlistVideoTitle}>{name}</Text>
-        <Text style={styles.playlistSubText}>{channel}</Text>
-        <Text style={styles.playlistSubText}>{views} views</Text>
-      </View>
-    </View>
-  );
-};
-const heightVideo = PixelRatio.roundToNearestPixel(
-  Dimensions.get("window").width / (16 / 9)
-);
-const heightBottomTab = 40;
+// import YoutubePlayer from "../../components/youtube/src/mobile/index";
+import AppContext from "../../navigation/AppContext";
+import { RectButton, BorderlessButton } from "react-native-gesture-handler";
+// import Row from "./Row";
+
+const heightBottomTab = 0;
 export default class Youtube extends React.Component {
   state = {
     videoInfo: {},
@@ -47,6 +33,7 @@ export default class Youtube extends React.Component {
     videoId: "",
     onchangeVideo: true,
     isFullScreen: false,
+    rotation: "",
     target: {
       x: 0,
       y: 0,
@@ -60,18 +47,21 @@ export default class Youtube extends React.Component {
     }
   };
   status = 3; // 1: expand , 2: minim, 3: hide
-  value = Dimensions.get("window").height - heightVideo - heightBottomTab;
+  value = Dimensions.get("window").height;
   pan = new Animated.ValueXY({
     x: 0,
-    y: Dimensions.get("window").height + 100
+    y: Dimensions.get("window").height
   });
+  window: any;
   panResponder: any;
   imagePanResponder: any;
-
+  heightVideo = 0;
+  widthVideo = 0;
   events = {} as any;
   listenerChangeVideo: any;
-
+  listenerChangeDimension: any;
   _animatedFrame = new Animated.Value(0);
+
   componentWillMount() {
     this.createPanResponder();
     this.createImagePanResponder();
@@ -88,31 +78,33 @@ export default class Youtube extends React.Component {
         return true;
       }
       if (this.state.isFullScreen) {
-        this.onFullScreen(false, undefined);
+        this.refYoutube.toggleFS();
         return true;
       }
       return false;
     });
 
-    this.listenerChangeVideo.addEventListener(video => {
-      const {
-        resourceId: { videoId },
-        videos = []
-      } = video;
+    this.listenerChangeDimension.addEventListener((e: any) => {
+      this.restartPositions();
+    });
+
+    this.listenerChangeVideo.addEventListener((video = {}) => {
+      const { videos = [], videoId = "" } = video;
       if (videoId === this.state.videoId && this.status !== 3) {
         this.open();
       } else {
         this.open(() => {
-          console.log("videos", videos);
-          this.setState({
-            videoId: videoId,
-            onchangeVideo: true,
-            videoInfo: video,
-            videos: videos
-          });
-          setTimeout(() => {
-            this.setState({ onchangeVideo: false }, () => {});
-          });
+          this.setState(
+            {
+              videoId: videoId,
+              onchangeVideo: true,
+              videoInfo: video,
+              videos: videos
+            },
+            () => {
+              this.setState({ onchangeVideo: false });
+            }
+          );
         });
       }
     });
@@ -121,13 +113,28 @@ export default class Youtube extends React.Component {
     BackHandler.removeEventListener("hardwareBackPress", () => false);
   }
 
-  createPanResponder = () => {
+  restartPositions = () => {
+    switch (this.status) {
+      case 1:
+        this.open();
+        break;
+      case 2:
+        this.hide();
+        break;
+      case 3:
+        this.dissmiss();
+        break;
+      default:
+        break;
+    }
+  };
+  private createPanResponder = () => {
     this.panResponder = PanResponder.create({
       onStartShouldSetPanResponder: (e, gestureState) => {
         if (this.state.isFullScreen) {
           return false;
         }
-        if (gestureState.dy > 50 || gestureState.dy < 0) {
+        if (gestureState.dy > 50 || gestureState.dy < -50) {
           return true;
         }
         return false;
@@ -136,7 +143,7 @@ export default class Youtube extends React.Component {
         if (this.state.isFullScreen) {
           return false;
         }
-        if (gestureState.dy > 50 || gestureState.dy < 0) {
+        if (gestureState.dy > 50 || gestureState.dy < -50) {
           return true;
         }
         return false;
@@ -196,23 +203,23 @@ export default class Youtube extends React.Component {
     });
   };
 
-  createImagePanResponder = () => {
+  private createImagePanResponder = () => {
     this.imagePanResponder = PanResponder.create({
-      onStartShouldSetPanResponder: (e, gestureState) => {
+      onStartShouldSetPanResponder: () => {
         return false;
       },
-      onMoveShouldSetPanResponder: (e, gestureState) => {
+      onMoveShouldSetPanResponder: () => {
         return false;
       }
     });
   };
 
-  open = (callback?) => {
+  open = (callback?: any) => {
     this.status = 1;
     Animated.timing(this.pan, {
       toValue: { x: 0, y: 0 },
-      duration: 200,
-      useNativeDriver: true
+      duration: 200
+      // useNativeDriver: true
     }).start(callback);
   };
 
@@ -220,130 +227,159 @@ export default class Youtube extends React.Component {
     this.status = 2;
     Animated.timing(this.pan, {
       toValue: { x: 0, y: this.value },
-      duration: 200,
-      useNativeDriver: true
+      duration: 200
+      // useNativeDriver: true
     }).start(() => {});
   };
 
   dissmiss = () => {
     this.status = 3;
     Animated.timing(this.pan, {
-      toValue: { x: 0, y: Dimensions.get("window").height },
-      duration: 200,
-      useNativeDriver: true
+      toValue: { x: 0, y: this.window.height },
+      duration: 200
+      // useNativeDriver: true
     }).start(() => {
       this.setState({ onchangeVideo: true });
     });
   };
 
-  onFullScreen = (state, origin) => {
+  onFullScreen = (state: boolean, origin: any) => {
     if (state) {
-      StatusBar.setHidden(true, "slide");
       this.setState({ origin }, () => {
         this.setState({ isFullScreen: true }, () => {
-          Animated.spring(this._animatedFrame, {
-            toValue: 1
-          }).start();
+          Animated.timing(this._animatedFrame, {
+            toValue: 1,
+            duration: 200
+          }).start(() => {
+            immersiveModeOn();
+          });
         });
       });
     } else {
-      StatusBar.setHidden(false, "slide");
-      Animated.spring(this._animatedFrame, {
-        toValue: 0
-      }).start(() => {
-        this.setState({ isFullScreen: false });
-      });
+      immersiveModeOff();
+      setTimeout(() => {
+        Animated.timing(this._animatedFrame, {
+          toValue: 0,
+          duration: 200
+        }).start(() => {
+          setTimeout(() => {
+            this.setState({ isFullScreen: false }, () => {});
+          }, 20);
+        });
+      }, 20);
     }
   };
 
   render() {
-    const opacityInterpolate = this.pan.y.interpolate({
-      inputRange: [0, this.value - 100],
-      outputRange: [1, 0]
-    });
-
-    const { width, height: screenHeight } = Dimensions.get("window");
-    const height = width * 0.5625;
-
-    const translateYInterpolate = this.pan.y;
-    const scaleInterpolate = this.pan.y.interpolate({
-      inputRange: [0, 300],
-      outputRange: [1, 0.5],
-      extrapolate: "clamp"
-    });
-    const translateXInterpolate = this.pan.y.interpolate({
-      inputRange: [0, 300],
-      outputRange: [0, 85],
-      extrapolate: "clamp"
-    });
-    const scrollStyles = {
-      zIndex: 999,
-      backgroundColor: "white",
-      transform: [
-        {
-          translateY: translateYInterpolate
-        }
-      ]
-    };
-    const videoStyles = {
-      backgroundColor: "black",
-      zIndex: 999,
-      transform: [
-        {
-          translateY: translateYInterpolate
-        },
-        {
-          translateX: translateXInterpolate
-        },
-        {
-          scale: scaleInterpolate
-        }
-      ]
-    };
-
     const { target, origin } = this.state;
-
-    const animateConf = {
-      // transform: [
-      //   {
-      //     scale: this._animatedScale
-      //   },
-      //   {
-      //     translateX: this._animatedPositionX
-      //   },
-      //   {
-      //     translateY: this._animatedPositionY
-      //   }
-      // ],
-      left: this._animatedFrame.interpolate({
-        inputRange: [0, 1],
-        outputRange: [origin.x, target.x]
-      }),
-      top: this._animatedFrame.interpolate({
-        inputRange: [0, 1],
-        outputRange: [origin.y, target.y]
-      }),
-      width: this._animatedFrame.interpolate({
-        inputRange: [0, 1],
-        outputRange: [origin.width, WINDOW_WIDTH]
-      }),
-      height: this._animatedFrame.interpolate({
-        inputRange: [0, 1],
-        outputRange: [origin.height, WINDOW_HEIGHT]
-      }),
-      zIndex: 999
-    };
-    const contentStyle = this.state.isFullScreen
-      ? animateConf
-      : [{ width, height }, videoStyles];
+    const { closeSesion, getNavigation } = this.props;
     const panResponder = this.state.isFullScreen
       ? this.imagePanResponder.panHandlers
       : this.panResponder.panHandlers;
 
     return (
       <AppContext.Consumer>
-        {({ listenerChangeVideo }) => {
+        {({ listenerChangeVideo, getDimension, listenerChangeDimension }) => {
           this.listenerChangeVideo = listenerChangeVideo;
+          this.listenerChangeDimension = listenerChangeDimension;
+          const { screen, window, isPortail } = getDimension()();
+          const heightVideo = PixelRatio.roundToNearestPixel(
+            (isPortail() ? window.width : window.width / 2) / (16 / 9)
+          );
+          const widthVideo = window.width;
+          this.window = getDimension()().window;
+          this.heightVideo = heightVideo;
+          this.widthVideo = widthVideo;
+          this.value = window.height - heightBottomTab - heightVideo + 60;
+
+          // fullScreen animated
+          const animateConf = {
+            left: this._animatedFrame.interpolate({
+              inputRange: [0, 1],
+              outputRange: [origin.x, target.x]
+            }),
+            top: this._animatedFrame.interpolate({
+              inputRange: [0, 1],
+              outputRange: [origin.y, target.y]
+            }),
+            width: this._animatedFrame.interpolate({
+              inputRange: [0, 1],
+              outputRange: [origin.width, screen.width]
+            }),
+            height: this._animatedFrame.interpolate({
+              inputRange: [0, 1],
+              outputRange: [origin.height, screen.height]
+            }),
+            zIndex: 999
+          };
+          //
+          const translateY = this.pan.y;
+          const opacityInterpolate = translateY.interpolate({
+            inputRange: [0, this.value],
+            outputRange: [1, 0],
+            extrapolate: "clamp"
+          });
+
+          const scaleInterpolate = translateY.interpolate({
+            inputRange: [0, this.value],
+            outputRange: [1, 0.5],
+            extrapolate: "clamp"
+          });
+          const translateXInterpolate = translateY.interpolate({
+            inputRange: [0, this.value],
+            outputRange: [0, window.height / window.width + window.width / 4],
+            extrapolate: "clamp"
+          });
+          const width = translateY.interpolate({
+            inputRange: [0, this.value / 4, this.value],
+            outputRange: [widthVideo, widthVideo, window.width * 0.2],
+            extrapolate: "clamp"
+          });
+          const height = translateY.interpolate({
+            inputRange: [0, this.value / 4, this.value],
+            outputRange: [heightVideo, heightVideo, 60],
+            extrapolate: "clamp"
+          });
+          const scrollStyles = {
+            marginBottom: -20,
+            zIndex: 999,
+            backgroundColor: "white",
+            transform: [
+              {
+                translateY:
+                  this.state.isFullScreen && this.status === 2
+                    ? screen.height
+                    : translateY
+              }
+            ]
+          };
+          const videoStyles = {
+            backgroundColor: "green",
+            zIndex: 999,
+            width,
+            height,
+            transform: [
+              {
+                translateY: translateY.interpolate({
+                  inputRange: [0, this.value],
+                  outputRange: [window.height * 0.1, 0],
+                  extrapolate: "clamp"
+                })
+              }
+            ]
+          };
+          const contentStyle = {
+            backgroundColor: "gray",
+            flex: 1,
+            transform: [
+              {
+                translateY
+              }
+            ]
+          };
+          const contentVideo = this.state.isFullScreen
+            ? animateConf
+            : [{ width: widthVideo, height: heightVideo }, videoStyles];
           return (
             <>
               <View
@@ -351,50 +387,82 @@ export default class Youtube extends React.Component {
                 pointerEvents={Platform.OS === "ios" ? "box-none" : undefined}
               >
                 <Animated.View style={contentStyle} {...panResponder}>
-                  {!this.state.onchangeVideo ? (
-                    <YoutubePlayer
-                      autoPlay
-                      onFullScreen={(state: boolean, origin) => {
-                        console.log("origin", origin);
-                        this.onFullScreen(state, origin);
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      height: 60,
+                      ...StyleSheet.absoluteFillObject
+                    }}
+                  >
+                    <TouchableOpacity
+                      style={{ flex: 1 }}
+                      activeOpacity={1}
+                      onPress={() => {
+                        this.open();
                       }}
-                      loop={false}
-                      topBar={() => {
-                        return (
-                          <View
-                            style={{
-                              position: "absolute",
-                              left: 0,
-                              right: 0,
-                              top: 0
-                            }}
-                          >
-                            <TouchableOpacity
-                              onPress={() => {
-                                this.hide();
-                              }}
-                            >
-                              <Text style={{ color: "white" }}> {"<>"} </Text>
-                            </TouchableOpacity>
-                          </View>
-                        );
-                      }}
-                      videoId={this.state.videoId}
-                      onStart={() => console.log("onStart")}
-                      onEnd={() => console.log("on End")}
-                    ></YoutubePlayer>
-                  ) : (
+                    >
+                      <Animated.Text
+                        style={{
+                          opacity: translateY.interpolate({
+                            inputRange: [0, this.value],
+                            outputRange: [1, 0],
+                            extrapolate: "clamp"
+                          })
+                        }}
+                      >
+                        Abajo
+                      </Animated.Text>
+                    </TouchableOpacity>
                     <Animated.View
-                      style={[
-                        {
-                          backgroundColor: "black"
-                        },
-                        contentStyle
-                      ]}
-                    ></Animated.View>
-                  )}
+                      style={{
+                        alignItems: "center",
+                        justifyContent: "center",
+                        opacity: translateY.interpolate({
+                          inputRange: [0, this.value],
+                          outputRange: [0, 1],
+                          extrapolate: "clamp"
+                        })
+                      }}
+                    >
+                      <BorderlessButton
+                        style={{
+                          alignItems: "center",
+                          justifyContent: "center",
+                          padding: 10
+                        }}
+                        activeOpacity={1}
+                        onPress={() => {
+                          this.dissmiss();
+                        }}
+                      >
+                        <Text>X</Text>
+                      </BorderlessButton>
+                    </Animated.View>
+                  </View>
+
+                  <Animated.View
+                    style={[
+                      {
+                        // backgroundColor: "black"
+                      },
+                      contentVideo
+                    ]}
+                  >
+                    <Image
+                      style={{
+                        height: "100%",
+                        width: "100%",
+                        resizeMode: "contain"
+                      }}
+                      source={{
+                        uri:
+                          "https://img1.ak.crunchyroll.com/i/spire4-tmb/65ef69125438eacc504826fd17e4f4121594034752_fwidestar.jpg"
+                      }}
+                    ></Image>
+                  </Animated.View>
                 </Animated.View>
-                <Animated.FlatList
+                {/* <Animated.FlatList
+                  keyExtractor={(_, index) => `_${index}`}
                   style={[styles.scrollView, scrollStyles]}
                   data={this.state.videos}
                   ListHeaderComponent={() => {
@@ -411,117 +479,171 @@ export default class Youtube extends React.Component {
                           {title}
                         </Animated.Text>
                         <Animated.Text
-                          style={{ fontSize: 14, opacity: opacityInterpolate }}
+                          style={{
+                            fontSize: 14,
+                            opacity: opacityInterpolate
+                          }}
                         >
                           {description}
                         </Animated.Text>
                       </View>
                     );
                   }}
+                  ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
                   extraData={this.state.videoId}
                   renderItem={({ index, item }) => {
-                    const {
-                      title,
-                      url_imagen,
-                      resourceId: { videoId } = {}
-                    } = item;
+                    const { title, url_imagen, videoId } = item;
 
                     return (
-                      <RectButton
-                        enabled={videoId !== this.state.videoId}
-                        onPress={() => {
-                          const video = item;
-                          this.setState({
-                            videoId: videoId,
-                            onchangeVideo: true,
-                            videoInfo: video
-                          });
-                          setTimeout(() => {
-                            this.setState({ onchangeVideo: false }, () => {});
-                          });
-                          // changeVideo()({ ...video, video: this.state.videos });
-                        }}
-                        style={{
-                          height: 80,
-                          padding: 10,
-                          flexDirection: "row",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          backgroundColor:
-                            videoId === this.state.videoId ? "gray" : undefined
-                        }}
-                      >
-                        <Image
-                          source={{ uri: url_imagen }}
-                          style={{ height: 50, width: 50 }}
-                        />
-                        <View style={{ flex: 1, paddingLeft: 10 }}>
-                          <Text>{title}</Text>
-                        </View>
-                      </RectButton>
+                      <View></View>
+                      // <Row
+                      //   select={videoId === this.state.videoId}
+                      //   url_imagen={url_imagen}
+                      //   title={title}
+                      //   onPress={() => {
+                      //     const video = item;
+                      //     this.setState({
+                      //       videoId: videoId,
+                      //       onchangeVideo: true,
+                      //       videoInfo: video
+                      //     });
+                      //     setTimeout(() => {
+                      //       this.setState({ onchangeVideo: false }, () => {});
+                      //     });
+                      //   }}
+                      // ></Row>
                     );
                   }}
-                />
+                /> */}
               </View>
+
               <Animated.View
                 style={{
                   flexDirection: "row",
                   elevation: 4,
                   height: 60,
                   backgroundColor: "#082D58",
+                  position: "absolute",
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
                   transform: [
                     {
-                      translateY: this.pan.y.interpolate({
-                        inputRange: [
-                          0,
-                          this.value,
-                          Dimensions.get("window").height
-                        ],
-                        outputRange: [60, 0, 0]
-                      })
+                      translateY: this.state.isFullScreen
+                        ? this._animatedFrame.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [this.status === 2 ? 0 : 60, 60]
+                          })
+                        : translateY.interpolate({
+                            inputRange: [0, this.value, window.height],
+                            outputRange: [60, 0, 0]
+                          })
                     }
                   ]
                 }}
               >
-                <View
-                  style={{
-                    flex: 1,
-                    alignItems: "center",
-                    justifyContent: "center"
-                  }}
-                >
-                  <Text style={{ color: "white", fontSize: 12 }}>Perfil</Text>
-                </View>
                 <RectButton
+                  onPress={() => {
+                    getNavigation().navigate("$routes.home");
+                  }}
                   style={{
                     flex: 1,
                     alignItems: "center",
                     justifyContent: "center"
                   }}
                 >
-                  <Text style={{ color: "white", fontSize: 12 }}>
-                    Favoritos
+                  {/* <Image
+                    style={{ height: 20, width: 20, resizeMode: "contain" }}
+                    source={require("../../../assets/ic_home.png")}
+                  /> */}
+                  <Text
+                    style={{ color: "white", fontSize: 12 }}
+                    numberOfLines={1}
+                  >
+                    Inicio
                   </Text>
                 </RectButton>
                 <RectButton
+                  onPress={() => {
+                    getNavigation().navigate("$routes.new");
+                  }}
                   style={{
                     flex: 1,
                     alignItems: "center",
                     justifyContent: "center"
                   }}
                 >
-                  <Text style={{ color: "white", fontSize: 12 }}>
-                    Notificaciones
+                  {/* <Image
+                    style={{ height: 20, width: 20, resizeMode: "contain" }}
+                    source={require("../../../assets/ic_favorite.png")}
+                  /> */}
+
+                  <Text
+                    style={{ color: "white", fontSize: 12 }}
+                    numberOfLines={1}
+                  >
+                    Nuevos
                   </Text>
                 </RectButton>
                 <RectButton
+                  onPress={() => {
+                    getNavigation().navigate("$routes.anime");
+                  }}
                   style={{
                     flex: 1,
                     alignItems: "center",
                     justifyContent: "center"
                   }}
                 >
-                  <Text style={{ color: "white", fontSize: 12 }}>Salir</Text>
+                  {/* <Image
+                    style={{ height: 20, width: 20, resizeMode: "contain" }}
+                    source={require("../../../assets/ic_favorite.png")}
+                  /> */}
+
+                  <Text
+                    style={{ color: "white", fontSize: 12 }}
+                    numberOfLines={1}
+                  >
+                    animes
+                  </Text>
+                </RectButton>
+
+                <RectButton
+                  onPress={() => {
+                    Alert.alert(
+                      "",
+                      "¿Desea cerrar sesión?",
+                      [
+                        {
+                          text: "Aceptar",
+                          onPress: () => {
+                            // closeSesion();
+                          }
+                        },
+                        {
+                          text: "Cancelar"
+                        }
+                      ],
+                      { cancelable: true }
+                    );
+                  }}
+                  style={{
+                    flex: 1,
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}
+                >
+                  {/* <Image
+                    style={{ height: 20, width: 20, resizeMode: "contain" }}
+                    source={require("../../../assets/ic_close.png")}
+                  /> */}
+
+                  <Text
+                    style={{ color: "white", fontSize: 12 }}
+                    numberOfLines={1}
+                  >
+                    Salir
+                  </Text>
                 </RectButton>
               </Animated.View>
             </>
@@ -623,305 +745,3 @@ const styles = StyleSheet.create({
     color: "#555"
   }
 });
-
-// import React, { Component } from "react";
-// import {
-//   StyleSheet,
-//   Text,
-//   View,
-//   Image,
-//   Dimensions,
-//   TouchableOpacity,
-//   PanResponder,
-//   Animated
-// } from "react-native";
-
-// import { Video } from "expo";
-// import { FontAwesome as Icon } from "@expo/vector-icons";
-
-// const Thumbnail = { uri: "http://i.imgur.com/HKVgAl0.jpg" };
-
-// const TouchableIcon = ({ name, children }) => {
-//   return (
-//     <TouchableOpacity style={styles.touchIcon}>
-//       <Icon name={name} size={30} color="#767577" />
-//       <Text style={styles.iconText}>{children}</Text>
-//     </TouchableOpacity>
-//   );
-// };
-
-// import YoutubePlayer from "../../components/youtube/src/mobile/index";
-
-// const AnimatedYoutube = Animated.createAnimatedComponent(YoutubePlayer);
-
-// const PlaylistVideo = ({ name, channel, views, image }) => {
-//   return (
-//     <View style={styles.playlistVideo}>
-//       <Image
-//         source={image}
-//         style={styles.playlistThumbnail}
-//         resizeMode="cover"
-//       />
-//       <View style={styles.playlistText}>
-//         <Text style={styles.playlistVideoTitle}>{name}</Text>
-//         <Text style={styles.playlistSubText}>{channel}</Text>
-//         <Text style={styles.playlistSubText}>{views} views</Text>
-//       </View>
-//     </View>
-//   );
-// };
-
-// export default class rnvideo extends Component {
-//   _panResponder: any;
-//   _y = 0;
-//   _animation = new Animated.Value(0);
-//   componentWillMount() {
-//     this._animation.addListener(({ value }) => {
-//       this._y = value;
-//     });
-
-//     this._panResponder = PanResponder.create({
-//       onStartShouldSetPanResponder: (e, gestureState) => {
-//         if (gestureState.dy > 10 || gestureState.dy < 0) {
-//           return true;
-//         }
-//         return false;
-//       },
-//       onMoveShouldSetPanResponder: (e, gestureState) => {
-//         if (gestureState.dy > 10 || gestureState.dy < 0) {
-//           return true;
-//         }
-//         return false;
-//       },
-//       onPanResponderMove: Animated.event([
-//         null,
-//         {
-//           dy: this._animation
-//         }
-//       ]),
-//       onPanResponderRelease: (e, gestureState) => {
-//         if (gestureState.dy > 100) {
-//           Animated.timing(this._animation, {
-//             toValue: 300,
-//             duration: 200
-//           }).start();
-//           this._animation.setOffset(300);
-//         } else {
-//           this._animation.setOffset(0);
-//           Animated.timing(this._animation, {
-//             toValue: 0,
-//             duration: 200
-//           }).start();
-//         }
-//       }
-//     });
-//   }
-//   handleOpen = () => {
-//     this._animation.setOffset(0);
-//     Animated.timing(this._animation, {
-//       toValue: 0,
-//       duration: 200
-//     }).start();
-//   };
-//   render() {
-//     const { width, height: screenHeight } = Dimensions.get("window");
-//     const height = width * 0.5625;
-
-//     const opacityInterpolate = this._animation.interpolate({
-//       inputRange: [0, 300],
-//       outputRange: [1, 0]
-//     });
-
-// const translateYInterpolate = this._animation.interpolate({
-//   inputRange: [0, 300],
-//   outputRange: [0, screenHeight - height],
-//   extrapolate: "clamp"
-// });
-
-//     const scaleInterpolate = this._animation.interpolate({
-//       inputRange: [0, 300],
-//       outputRange: [1, 0.5],
-//       extrapolate: "clamp"
-//     });
-
-//     const translateXInterpolate = this._animation.interpolate({
-//       inputRange: [0, 300],
-//       outputRange: [0, 85],
-//       extrapolate: "clamp"
-//     });
-
-//     const scrollStyles = {
-//       opacity: opacityInterpolate,
-//       transform: [
-//         {
-//           translateY: translateYInterpolate
-//         }
-//       ]
-//     };
-
-//     const videoStyles = {
-//       transform: [
-//         {
-//           translateY: translateYInterpolate
-//         },
-//         {
-//           translateX: translateXInterpolate
-//         },
-//         {
-//           scale: scaleInterpolate
-//         }
-//       ]
-//     };
-
-//     return (
-//       <>
-//         <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-//           <Animated.View
-//             style={[{ width, height }, videoStyles]}
-//             {...this._panResponder.panHandlers}
-//           >
-//             <AnimatedYoutube
-//               // {...this.panResponder.panHandlers}
-//               // topBar={TopBar}
-//               videoId="QVcOETUce98"
-//               // autoPlay
-//               //onFullScreen={this.onFullScreen}
-//               onStart={() => console.log("onStart")}
-//               onEnd={() => console.log("on End")}
-//             ></AnimatedYoutube>
-//           </Animated.View>
-//           <Animated.ScrollView style={[styles.scrollView, scrollStyles]}>
-//             <View style={styles.padding}>
-//               <Text style={styles.title}>
-//                 Bienvenido a ISO’s WareTV - Estructura
-//               </Text>
-//               <Text>
-//                 Conoce la estructura y beneficios que tenemos para ti y tu
-//                 empresa.
-//               </Text>
-//             </View>
-
-//             <View style={[styles.playlist, styles.padding]}>
-//               <Text style={styles.playlistUpNext}>Up next</Text>
-//               <PlaylistVideo
-//                 image={Thumbnail}
-//                 name="Next Sweet DJ Video"
-//                 channel="Prerecorded MP3s"
-//                 views="380K"
-//               />
-//               <PlaylistVideo
-//                 image={Thumbnail}
-//                 name="Next Sweet DJ Video"
-//                 channel="Prerecorded MP3s"
-//                 views="380K"
-//               />
-//               <PlaylistVideo
-//                 image={Thumbnail}
-//                 name="Next Sweet DJ Video"
-//                 channel="Prerecorded MP3s"
-//                 views="380K"
-//               />
-//               <PlaylistVideo
-//                 image={Thumbnail}
-//                 name="Next Sweet DJ Video"
-//                 channel="Prerecorded MP3s"
-//                 views="380K"
-//               />
-//               <PlaylistVideo
-//                 image={Thumbnail}
-//                 name="Next Sweet DJ Video"
-//                 channel="Prerecorded MP3s"
-//                 views="380K"
-//               />
-//               <PlaylistVideo
-//                 image={Thumbnail}
-//                 name="Next Sweet DJ Video"
-//                 channel="Prerecorded MP3s"
-//                 views="380K"
-//               />
-//               <PlaylistVideo
-//                 image={Thumbnail}
-//                 name="Next Sweet DJ Video"
-//                 channel="Prerecorded MP3s"
-//                 views="380K"
-//               />
-//             </View>
-//           </Animated.ScrollView>
-//         </View>
-//       </>
-//     );
-//   }
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     alignItems: "center",
-//     justifyContent: "center"
-//   },
-//   scrollView: {
-//     flex: 1,
-//     backgroundColor: "#FFF"
-//   },
-//   title: {
-//     fontSize: 28
-//   },
-//   likeRow: {
-//     flexDirection: "row",
-//     justifyContent: "space-around",
-//     paddingVertical: 15
-//   },
-//   touchIcon: {
-//     alignItems: "center",
-//     justifyContent: "center"
-//   },
-//   iconText: {
-//     marginTop: 5
-//   },
-//   padding: {
-//     paddingVertical: 15,
-//     paddingHorizontal: 15
-//   },
-//   channelInfo: {
-//     flexDirection: "row",
-//     borderBottomWidth: 1,
-//     borderBottomColor: "#DDD",
-//     borderTopWidth: 1,
-//     borderTopColor: "#DDD"
-//   },
-//   channelIcon: {
-//     width: 50,
-//     height: 50
-//   },
-//   channelText: {
-//     marginLeft: 15
-//   },
-//   channelTitle: {
-//     fontSize: 18,
-//     marginBottom: 5
-//   },
-//   playlistUpNext: {
-//     fontSize: 24
-//   },
-//   playlistVideo: {
-//     flexDirection: "row",
-//     height: 100,
-//     marginTop: 15,
-//     marginBottom: 15
-//   },
-//   playlistThumbnail: {
-//     width: null,
-//     height: null,
-//     flex: 1
-//   },
-//   playlistText: {
-//     flex: 2,
-//     paddingLeft: 15
-//   },
-//   playlistVideoTitle: {
-//     fontSize: 18
-//   },
-//   playlistSubText: {
-//     color: "#555"
-//   }
-// });

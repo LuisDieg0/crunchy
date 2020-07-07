@@ -1,7 +1,18 @@
 import React from "react";
-import { any } from "prop-types";
+import { isPortail, isTablet } from "../utils/validations";
 
 const AppContext = React.createContext({
+  listenerChangeDimension: {
+    addEventListener: (event: any) => {}
+  },
+  getDimension: () => {
+    return () => ({
+      window: { height: 0, width: 0 },
+      screen: { height: 0, width: 0 },
+      isPortail,
+      isTablet
+    });
+  },
   listenerChangeVideo: {
     addEventListener: (event: any) => {}
   },

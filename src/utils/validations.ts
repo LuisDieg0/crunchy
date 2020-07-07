@@ -1,3 +1,4 @@
+import { Dimensions } from "react-native";
 export function isInt(n) {
   return Number(n) === n && n % 1 === 0;
 }
@@ -46,3 +47,19 @@ export function validateDni(data) {
   }
   return dcontrols.letters[index] === dcontrol;
 }
+
+export const isPortail = () => {
+  const dim = Dimensions.get("screen");
+  return dim.height >= dim.width;
+};
+
+export const isTablet = () => {
+  const dim = Dimensions.get("screen");
+  return (
+    (dim.scale < 2 && msp(dim, 1000)) || (dim.scale >= 2 && msp(dim, 1900))
+  );
+};
+
+const msp = (dim: any, limit: any) => {
+  return dim.scale * dim.width >= limit || dim.scale * dim.height >= limit;
+};
