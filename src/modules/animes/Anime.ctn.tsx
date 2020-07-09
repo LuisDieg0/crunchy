@@ -7,7 +7,7 @@ export default compose(
       return {
         data: new Array(10).fill({}).map((item, index) => ({
           title: `Anime ${index + 1}`,
-          subTitle: `chapters  ${index + 360}`,
+          subTitle: `chapters  ${index + 370}`,
           image:
             "https://pxb.cdn.latpress.com/latpress/042020/1586870847052.jpg",
         })),

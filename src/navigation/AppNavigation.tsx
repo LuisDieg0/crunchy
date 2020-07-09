@@ -23,7 +23,7 @@ export default function AppNavigation(props: any) {
     window: Dimensions.get("window"),
     screen: Dimensions.get("screen"),
     isPortail,
-    isTablet
+    isTablet,
   });
 
   const getDimension = () => {
@@ -33,14 +33,14 @@ export default function AppNavigation(props: any) {
     return refNavigation;
   };
   React.useEffect(() => {
-    Object.keys(listenerChangeDimension).forEach(key => {
+    Object.keys(listenerChangeDimension).forEach((key) => {
       if (typeof listenerChangeDimension[key] === "function") {
         listenerChangeDimension[key](dimension);
       }
     });
   }, [dimension]);
   React.useEffect(() => {
-    Dimensions.addEventListener("change", e => {
+    Dimensions.addEventListener("change", (e) => {
       const dim = { ...e, isPortail, isTablet };
       setDimension(dim);
     });
@@ -55,8 +55,8 @@ export default function AppNavigation(props: any) {
     <AppContext.Provider
       value={{
         changeVideo: () => {
-          return video => {
-            Object.keys(listenerChangeVideo).forEach(key => {
+          return (video) => {
+            Object.keys(listenerChangeVideo).forEach((key) => {
               if (typeof listenerChangeVideo[key] === "function") {
                 listenerChangeVideo[key](video);
               }
@@ -64,15 +64,15 @@ export default function AppNavigation(props: any) {
           };
         },
         listenerChangeVideo: {
-          addEventListener: event => {
+          addEventListener: (event) => {
             listenerChangeVideo[
               `_${Object.keys(listenerChangeVideo).length}`
             ] = event;
-          }
+          },
         },
         onSearch: () => {
-          return video => {
-            Object.keys(listenerSearch).forEach(key => {
+          return (video) => {
+            Object.keys(listenerSearch).forEach((key) => {
               if (typeof listenerSearch[key] === "function") {
                 listenerSearch[key](video);
               }
@@ -80,24 +80,24 @@ export default function AppNavigation(props: any) {
           };
         },
         listenerSearch: {
-          addEventListener: event => {
+          addEventListener: (event) => {
             listenerSearch[`_${Object.keys(listenerSearch).length}`] = event;
-          }
+          },
         },
         listenerChangeDimension: {
-          addEventListener: event => {
+          addEventListener: (event) => {
             listenerChangeDimension[
               `_${Object.keys(listenerChangeDimension).length}`
             ] = event;
-          }
+          },
         },
         getDimension: () => {
           return getDimension;
-        }
+        },
       }}
     >
       <NavigationContainer
-        ref={ref => {
+        ref={(ref) => {
           refNavigation = ref;
         }}
       >
@@ -127,7 +127,7 @@ export default function AppNavigation(props: any) {
 const Empty = () => {
   return <View></View>;
 };
-const TabNavigation = props => {
+const TabNavigation = (props) => {
   return (
     <>
       <View style={{ flex: 1 }}>
@@ -143,7 +143,7 @@ const TabNavigation = props => {
               style={{
                 alignItems: "center",
                 justifyContent: "center",
-                padding: 10
+                padding: 10,
               }}
             >
               <Image
@@ -152,7 +152,7 @@ const TabNavigation = props => {
                   height: 16,
                   width: 16,
                   tintColor: "black",
-                  resizeMode: "contain"
+                  resizeMode: "contain",
                 }}
               ></Image>
             </BorderlessButton>
@@ -162,12 +162,12 @@ const TabNavigation = props => {
           <Tab.Screen
             component={Home}
             name={routesTab.home}
-            options={{ title: "Inicio" }}
+            options={{ title: "hola" }}
           ></Tab.Screen>
           <Tab.Screen
             component={Empty}
             name={routesTab.new}
-            options={{ title: "Nuevo" }}
+            options={{ title: "hola1" }}
           ></Tab.Screen>
           <Tab.Screen
             component={Animes}
@@ -189,11 +189,11 @@ export const routesTab = {
   home: "$routes.home",
   new: "$routes.new",
   anime: "$routes.anime",
-  other: "$routes.other"
+  other: "$routes.other",
 };
 
 export const routesStack = {
   init: "$routes.init",
   animes: "$routes.animes",
-  chapter: "$routes.chapter"
+  chapter: "$routes.chapter",
 };

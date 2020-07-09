@@ -1,13 +1,13 @@
 import { connect } from "react-redux";
 import { compose, lifecycle } from "recompose";
-import ViewChapter from "./AnimeChapter.view";
+import ViewChapter from "./Other.view";
 export default compose(
   connect(
     (state) => {
       return {
         data: {
           title: "title",
-          description: "aqui va la descripcion del anime, gaaaaaaaa",
+          description: "aqui va la descripcion de el anime, gaaaaaaaaaa",
 
           chapters: new Array(100).fill({}).map((item, index) => ({
             chap: `capitulo ${index + 1}`,
