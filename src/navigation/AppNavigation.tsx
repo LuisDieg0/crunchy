@@ -162,12 +162,12 @@ const TabNavigation = (props) => {
           <Tab.Screen
             component={Home}
             name={routesTab.home}
-            options={{ title: "hola" }}
+            options={{ title: "Inicio" }}
           ></Tab.Screen>
           <Tab.Screen
             component={Empty}
             name={routesTab.new}
-            options={{ title: "hola1" }}
+            options={{ title: "Nuevo" }}
           ></Tab.Screen>
           <Tab.Screen
             component={Animes}
