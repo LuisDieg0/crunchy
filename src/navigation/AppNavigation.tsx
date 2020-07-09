@@ -11,7 +11,7 @@ import ToolBar from "../components/toolbar/ToolBar";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 import { isPortail, isTablet } from "../utils/validations";
-import Youtube from "../components/youtube/Youtube";
+import Video from "../components/video/Video";
 import { BorderlessButton } from "react-native-gesture-handler";
 
 export default function AppNavigation(props: any) {
@@ -119,7 +119,7 @@ export default function AppNavigation(props: any) {
           ></Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>
-      <Youtube {...{ ...props, getNavigation }}></Youtube>
+      <Video {...{ ...props, getNavigation }}></Video>
     </AppContext.Provider>
   );
 }

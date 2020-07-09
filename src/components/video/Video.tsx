@@ -18,13 +18,12 @@ import {
   immersiveModeOn,
   immersiveModeOff
 } from "react-native-android-immersive-mode";
-
-// import YoutubePlayer from "../../components/youtube/src/mobile/index";
+// import Video from "react-native-video";
+import Video, { ProgressBar, ControlBar } from "./src/index";
 import AppContext from "../../navigation/AppContext";
 import { RectButton, BorderlessButton } from "react-native-gesture-handler";
 // import Row from "./Row";
-
-const heightBottomTab = 0;
+const heightBottomTab = 60;
 export default class Youtube extends React.Component {
   state = {
     videoInfo: {},
@@ -61,22 +60,31 @@ export default class Youtube extends React.Component {
   listenerChangeVideo: any;
   listenerChangeDimension: any;
   _animatedFrame = new Animated.Value(0);
-
+  onProgress = () => {};
+  isInmersiveMode = false;
   componentWillMount() {
     this.createPanResponder();
     this.createImagePanResponder();
   }
 
+  onInmersiveMode(status) {
+    this.isInmersiveMode = status;
+    if (status) {
+      immersiveModeOn();
+    } else {
+      immersiveModeOff();
+    }
+  }
   componentDidMount() {
     BackHandler.addEventListener("hardwareBackPress", () => {
       if (this.status === 1 && !this.state.isFullScreen) {
         this.hide();
         return true;
       }
-      if (this.status === 2 && !this.state.isFullScreen) {
-        this.dissmiss();
-        return true;
-      }
+      // if (this.status === 2 && !this.state.isFullScreen) {
+      //   this.dissmiss();
+      //   return true;
+      // }
       if (this.state.isFullScreen) {
         this.refYoutube.toggleFS();
         return true;
@@ -85,6 +93,13 @@ export default class Youtube extends React.Component {
     });
 
     this.listenerChangeDimension.addEventListener((e: any) => {
+      if (e.isPortail()) {
+        StatusBar.setHidden(false);
+        this.onInmersiveMode(false);
+      } else {
+        StatusBar.setHidden(true);
+        this.onInmersiveMode(true);
+      }
       this.restartPositions();
     });
 
@@ -251,12 +266,12 @@ export default class Youtube extends React.Component {
             toValue: 1,
             duration: 200
           }).start(() => {
-            immersiveModeOn();
+            this.onInmersiveMode(true);
           });
         });
       });
     } else {
-      immersiveModeOff();
+      this.onInmersiveMode(false);
       setTimeout(() => {
         Animated.timing(this._animatedFrame, {
           toValue: 0,
@@ -283,17 +298,19 @@ export default class Youtube extends React.Component {
           this.listenerChangeVideo = listenerChangeVideo;
           this.listenerChangeDimension = listenerChangeDimension;
           const { screen, window, isPortail } = getDimension()();
-          const heightVideo = PixelRatio.roundToNearestPixel(
-            (isPortail() ? window.width : window.width / 2) / (16 / 9)
-          );
+          const heightVideo = isPortail()
+            ? window.height / (16 / 9)
+            : this.isInmersiveMode
+            ? screen.height
+            : window.height;
           const widthVideo = window.width;
           this.window = getDimension()().window;
           this.heightVideo = heightVideo;
           this.widthVideo = widthVideo;
-          this.value = window.height - heightBottomTab - heightVideo + 60;
+          this.value = window.height - heightBottomTab - 100;
 
           // fullScreen animated
-          const animateConf = {
+          const zoomConfig = {
             left: this._animatedFrame.interpolate({
               inputRange: [0, 1],
               outputRange: [origin.x, target.x]
@@ -314,22 +331,7 @@ export default class Youtube extends React.Component {
           };
           //
           const translateY = this.pan.y;
-          const opacityInterpolate = translateY.interpolate({
-            inputRange: [0, this.value],
-            outputRange: [1, 0],
-            extrapolate: "clamp"
-          });
 
-          const scaleInterpolate = translateY.interpolate({
-            inputRange: [0, this.value],
-            outputRange: [1, 0.5],
-            extrapolate: "clamp"
-          });
-          const translateXInterpolate = translateY.interpolate({
-            inputRange: [0, this.value],
-            outputRange: [0, window.height / window.width + window.width / 4],
-            extrapolate: "clamp"
-          });
           const width = translateY.interpolate({
             inputRange: [0, this.value / 4, this.value],
             outputRange: [widthVideo, widthVideo, window.width * 0.2],
@@ -340,36 +342,23 @@ export default class Youtube extends React.Component {
             outputRange: [heightVideo, heightVideo, 60],
             extrapolate: "clamp"
           });
-          const scrollStyles = {
-            marginBottom: -20,
-            zIndex: 999,
-            backgroundColor: "white",
-            transform: [
-              {
-                translateY:
-                  this.state.isFullScreen && this.status === 2
-                    ? screen.height
-                    : translateY
-              }
-            ]
-          };
+
           const videoStyles = {
-            backgroundColor: "green",
-            zIndex: 999,
+            backgroundColor: "red",
             width,
             height,
             transform: [
               {
                 translateY: translateY.interpolate({
                   inputRange: [0, this.value],
-                  outputRange: [window.height * 0.1, 0],
+                  outputRange: [isPortail() ? window.height * 0.1 : 0, 0],
                   extrapolate: "clamp"
                 })
               }
             ]
           };
           const contentStyle = {
-            backgroundColor: "gray",
+            backgroundColor: "green",
             flex: 1,
             transform: [
               {
@@ -378,8 +367,8 @@ export default class Youtube extends React.Component {
             ]
           };
           const contentVideo = this.state.isFullScreen
-            ? animateConf
-            : [{ width: widthVideo, height: heightVideo }, videoStyles];
+            ? zoomConfig
+            : [videoStyles];
           return (
             <>
               <View
@@ -387,8 +376,25 @@ export default class Youtube extends React.Component {
                 pointerEvents={Platform.OS === "ios" ? "box-none" : undefined}
               >
                 <Animated.View style={contentStyle} {...panResponder}>
+                  <Animated.View
+                    style={[
+                      {
+                        backgroundColor: "red"
+                      },
+                      contentVideo
+                    ]}
+                  >
+                    <Video
+                      autoPlay
+                      onProgress={() => this.onProgress}
+                      url={
+                        "https://dl.v.vrv.co/evs1/7970086ac80213034c19abf15b16f873/assets/60b2cc20e2014699c3d5e377b69ebb2c_,3837054.mp4,3837056.mp4,3837052.mp4,3837050.mp4,3837048.mp4,.urlset/master.m3u8?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cCo6Ly9kbC52LnZydi5jby9ldnMxLzc5NzAwODZhYzgwMjEzMDM0YzE5YWJmMTViMTZmODczL2Fzc2V0cy82MGIyY2MyMGUyMDE0Njk5YzNkNWUzNzdiNjllYmIyY18sMzgzNzA1NC5tcDQsMzgzNzA1Ni5tcDQsMzgzNzA1Mi5tcDQsMzgzNzA1MC5tcDQsMzgzNzA0OC5tcDQsLnVybHNldC9tYXN0ZXIubTN1OCIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTU5NDMzMDY4N319fV19&Signature=UT8LIFvNdt0AAdLk00gqN-i-9PLk6tvP5T6Dm1ttXiW0Qlxdzzz-N~sIR5uyr0u7ncL6xadi5MyLJO0hN2-ZmEv4NhMLpt43wv54BJhC5ahGY9SfotB5zvDtMiyYYUoinbKb-7orCQFqkUtgnWQChCJ6Vx3cVODJWsZZnXE6DOf8nK0w0EM5pBtvjlSJ3iiBEIbug1~UsxEdJMxm4FtOFc6nd30TzE7DJQGH3VYKqCEdL7YOAkn96tfk0hYcnIfBFmcpiDt5Urk0t5V4t2PPs7O4KDZ6a3ieGpeG3yG~R7yRUPgyL75kWSojWEWeIHIVZw7-vAaxJ6CwFyC2tyXjQw__&Key-Pair-Id=DLVR"
+                      }
+                    />
+                  </Animated.View>
                   <View
                     style={{
+                      zIndex: 99,
                       flexDirection: "row",
                       height: 60,
                       ...StyleSheet.absoluteFillObject
@@ -398,11 +404,16 @@ export default class Youtube extends React.Component {
                       style={{ flex: 1 }}
                       activeOpacity={1}
                       onPress={() => {
-                        this.open();
+                        if (this.status === 1) {
+                          this.hide();
+                        } else {
+                          this.open();
+                        }
                       }}
                     >
                       <Animated.Text
                         style={{
+                          color: "white",
                           opacity: translateY.interpolate({
                             inputRange: [0, this.value],
                             outputRange: [1, 0],
@@ -435,93 +446,24 @@ export default class Youtube extends React.Component {
                           this.dissmiss();
                         }}
                       >
-                        <Text>X</Text>
+                        <Text style={{ color: "white" }}>X</Text>
                       </BorderlessButton>
                     </Animated.View>
                   </View>
-
                   <Animated.View
-                    style={[
-                      {
-                        // backgroundColor: "black"
-                      },
-                      contentVideo
-                    ]}
-                  >
-                    <Image
-                      style={{
-                        height: "100%",
-                        width: "100%",
-                        resizeMode: "contain"
-                      }}
-                      source={{
-                        uri:
-                          "https://img1.ak.crunchyroll.com/i/spire4-tmb/65ef69125438eacc504826fd17e4f4121594034752_fwidestar.jpg"
-                      }}
-                    ></Image>
-                  </Animated.View>
+                    style={{
+                      ...StyleSheet.absoluteFillObject,
+                      top: window.height * 0.5
+                    }}
+                  ></Animated.View>
                 </Animated.View>
-                {/* <Animated.FlatList
-                  keyExtractor={(_, index) => `_${index}`}
-                  style={[styles.scrollView, scrollStyles]}
-                  data={this.state.videos}
-                  ListHeaderComponent={() => {
-                    const { title, description } = this.state.videoInfo;
-                    return (
-                      <View style={{ padding: 5 }}>
-                        <Animated.Text
-                          style={{
-                            fontSize: 16,
-                            fontWeight: "bold",
-                            opacity: opacityInterpolate
-                          }}
-                        >
-                          {title}
-                        </Animated.Text>
-                        <Animated.Text
-                          style={{
-                            fontSize: 14,
-                            opacity: opacityInterpolate
-                          }}
-                        >
-                          {description}
-                        </Animated.Text>
-                      </View>
-                    );
-                  }}
-                  ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
-                  extraData={this.state.videoId}
-                  renderItem={({ index, item }) => {
-                    const { title, url_imagen, videoId } = item;
-
-                    return (
-                      <View></View>
-                      // <Row
-                      //   select={videoId === this.state.videoId}
-                      //   url_imagen={url_imagen}
-                      //   title={title}
-                      //   onPress={() => {
-                      //     const video = item;
-                      //     this.setState({
-                      //       videoId: videoId,
-                      //       onchangeVideo: true,
-                      //       videoInfo: video
-                      //     });
-                      //     setTimeout(() => {
-                      //       this.setState({ onchangeVideo: false }, () => {});
-                      //     });
-                      //   }}
-                      // ></Row>
-                    );
-                  }}
-                /> */}
               </View>
 
               <Animated.View
                 style={{
                   flexDirection: "row",
                   elevation: 4,
-                  height: 60,
+                  height: heightBottomTab,
                   backgroundColor: "#082D58",
                   position: "absolute",
                   left: 0,

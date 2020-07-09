@@ -1,4 +1,4 @@
-import { applyMiddleware, createStore, compose } from "redux";
+import { applyMiddleware, createStore } from "redux";
 import createSagaMiddleware from "redux-saga";
 import { persistReducer } from "redux-persist";
 
@@ -25,6 +25,7 @@ export default function createReduxStore() {
   const persistedReducer = persistReducer(persistConfig, reducer);
   const store = createStore(persistedReducer, applyMiddleware(...middlewares));
 
+  console.log("store");
   sagaMiddleware.run(Auth);
   sagaMiddleware.run(Playlist);
 
